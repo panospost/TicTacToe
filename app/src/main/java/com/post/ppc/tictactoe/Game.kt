@@ -1,5 +1,6 @@
 package com.post.ppc.tictactoe
 
+import android.util.Log
 import java.lang.Exception
 
 
@@ -76,35 +77,38 @@ object Game {
         when{
             winning(newBoard, playerHuman)->{
                 // player won
+                print("player Won")
                 return Move(-1,-10)
             }
             winning(newBoard, aiPlayer)->{
                 // ai won
-                return Move(-1,10)
+                print("ai Won")
+                return Move(1000,10)
             }
             availSpots.isEmpty()->{
                 // draw
-                return Move(-1,-1)
+                return Move()
             }
         }
 
         // an array to collect all the objects
-        val moves: MutableList<Move> = mutableListOf()
+        var moves: MutableList<Move> = mutableListOf()
 
         // loop through available spots
-        for (i in availableSpots.indices) {
+        for (i in availSpots.indices) {
             //create an object for each and store the index of that spot that was stored as a number in the object's index key
             val move = Move()
-            move.Index = availableSpots[i]
+            move.Index = availSpots[i]
 
             // set the empty spot to the current player
-            newBoard[availableSpots[i]] = player
+            newBoard[availSpots[i]] = player
 
             //if collect the score resulted from calling minimax on the opponent of the current player
 
                 when (player) {
                     aiPlayer -> {
-                        val result = minimax(newBoard, playerHuman)
+                        println(newBoard)
+                        var result = minimax(newBoard, playerHuman)
                         println("ai result")
                         println(result)
                         move.Score = result.Score
@@ -117,9 +121,10 @@ object Game {
 
 
             //reset the spot to empty
-            newBoard[availableSpots[i]] = "";
+            newBoard[availSpots[i]] = "";
             // push the object to the array
             moves.add(move)
+
         }
 
         // if it is the computer's turn loop over the moves and choose the move with the highest score
