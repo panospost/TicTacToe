@@ -6,6 +6,7 @@ import java.lang.Exception
 
 object Game {
     var gameRounds = 0
+    var minimaxcalls = 0
     var playerHuman = "X"
     var aiPlayer = "O"
     var draw = "draw"
@@ -13,23 +14,16 @@ object Game {
     var availableSpots = emptyIndexes(MainBoard)
 
 
-    private fun gameIsDraw() {
-        //Toast.makeText(this, "Game is Draw", Toast.LENGTH_SHORT).show()
-    }
-
-    fun player1Wins(): Boolean {
-        // Toast.makeText(this,"Player WON", Toast.LENGTH_LONG).show()
-        return true
-    }
-
     fun resetBoard() {
         gameRounds = 0
         MainBoard = arrayOf("", "", "", "", "", "", "", "", "")
+        updateAvailableSpots()
+        minimaxcalls = 0
     }
 
     fun turnOfAI(): List<Int> {
-        val bestMove = minimax(MainBoard, aiPlayer)
-        if(bestMove.Index !=-1){
+        var bestMove = minimax(MainBoard, aiPlayer)
+        if(bestMove.Index !=-1 && bestMove.Index !=1000){
             val x = bestMove.Index / 3
             val y = bestMove.Index % 3
             // buttons[x][y]?.text = aiPlayer
@@ -69,20 +63,20 @@ object Game {
     private fun minimax(newBoard: Array<String>, player: String): Move {
         //available spots
         val availSpots = emptyIndexes(newBoard)
-        println("empty spots")
-        println(availSpots)
+//        println("empty spots")
+//        println(availSpots)
 
         // checks for the terminal states such as win, lose, and tie and returning a value accordingly
         // and stops the recursion
         when{
             winning(newBoard, playerHuman)->{
                 // player won
-                print("player Won")
+              //  print("player Won")
                 return Move(-1,-10)
             }
             winning(newBoard, aiPlayer)->{
                 // ai won
-                print("ai Won")
+             //   print("ai Won")
                 return Move(1000,10)
             }
             availSpots.isEmpty()->{
@@ -97,7 +91,7 @@ object Game {
         // loop through available spots
         for (i in availSpots.indices) {
             //create an object for each and store the index of that spot that was stored as a number in the object's index key
-            val move = Move()
+            var move = Move()
             move.Index = availSpots[i]
 
             // set the empty spot to the current player
@@ -107,15 +101,19 @@ object Game {
 
                 when (player) {
                     aiPlayer -> {
-                        println(newBoard)
-                        var result = minimax(newBoard, playerHuman)
-                        println("ai result")
-                        println(result)
-                        move.Score = result.Score
+                        if(minimaxcalls <100){
+                            var result = minimax(newBoard, playerHuman)
+    //                        println("ai result")
+    //                        println(result)
+                            move.Score = result.Score
+                        }
                     }
                     playerHuman -> {
-                        val result = minimax(newBoard, aiPlayer)
-                        move.Score = result.Score
+                        if(minimaxcalls <100){
+                            val result = minimax(newBoard, aiPlayer)
+                            move.Score = result.Score
+                        }
+
                     }
                 }
 
@@ -124,9 +122,8 @@ object Game {
             newBoard[availSpots[i]] = "";
             // push the object to the array
             moves.add(move)
-
         }
-
+        minimaxcalls++
         // if it is the computer's turn loop over the moves and choose the move with the highest score
         return when (player) {
             aiPlayer -> {
@@ -169,8 +166,6 @@ object Game {
                 }
             }
         }
-        println("best move")
-        println(bestMove)
         return bestMove
     }
 
@@ -178,7 +173,7 @@ object Game {
         //available spots
         val availSpots = emptyIndexes(MainBoard)
         // checks for the terminal states such as win, lose, and tie and returning a value accordingly
-         when{
+        when{
             winning(MainBoard, playerHuman)->{
                 // player won
                 return playerHuman
@@ -192,7 +187,7 @@ object Game {
                 return draw
             }
             else->{
-                return "skip"
+                return "onGoing"
             }
         }
     }
